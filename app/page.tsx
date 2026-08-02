@@ -97,10 +97,13 @@ function PaperFigure({
 function ResourceLinks() {
   return (
     <nav className="resource-links" aria-label="Paper resources">
-      <a href={assetPath("/paper.pdf")} target="_blank" rel="noreferrer">
+      <span
+        aria-disabled="true"
+        title="The paper PDF is not publicly available yet"
+      >
         <span className="resource-kicker">PDF</span>
         Paper
-      </a>
+      </span>
       <span aria-disabled="true" title="No code URL is stated in the paper">
         <span className="resource-kicker">URL</span>
         Code
