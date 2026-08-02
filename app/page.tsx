@@ -6,6 +6,9 @@ import {
   type ComparisonScene,
 } from "./components/ProjectInteractions";
 
+const basePath = process.env.NEXT_PUBLIC_BASE_PATH ?? "";
+const assetPath = (path: string) => `${basePath}${path}`;
+
 export const metadata: Metadata = {
   title: "Evidence-Gated Stabilization for Sparse-View 3D Gaussian Splatting",
   description:
@@ -16,20 +19,20 @@ const scenes: ComparisonScene[] = [
   {
     id: "ignatius",
     name: "Ignatius",
-    leftImage: "/figures/ignatius-fsgs.png",
-    rightImage: "/figures/ignatius-ours.png",
+    leftImage: assetPath("/figures/ignatius-fsgs.png"),
+    rightImage: assetPath("/figures/ignatius-ours.png"),
   },
   {
     id: "horse",
     name: "Horse",
-    leftImage: "/figures/horse-fsgs.png",
-    rightImage: "/figures/horse-ours.png",
+    leftImage: assetPath("/figures/horse-fsgs.png"),
+    rightImage: assetPath("/figures/horse-ours.png"),
   },
   {
     id: "barn",
     name: "Barn",
-    leftImage: "/figures/barn-fsgs.png",
-    rightImage: "/figures/barn-ours.png",
+    leftImage: assetPath("/figures/barn-fsgs.png"),
+    rightImage: assetPath("/figures/barn-ours.png"),
   },
 ];
 
@@ -94,7 +97,7 @@ function PaperFigure({
 function ResourceLinks() {
   return (
     <nav className="resource-links" aria-label="Paper resources">
-      <a href="/paper.pdf" target="_blank" rel="noreferrer">
+      <a href={assetPath("/paper.pdf")} target="_blank" rel="noreferrer">
         <span className="resource-kicker">PDF</span>
         Paper
       </a>
@@ -189,10 +192,10 @@ export default function Home() {
         <MediaComparison
           leftLabel="FSGS"
           rightLabel="Ours"
-          leftImage="/figures/ignatius-fsgs.png"
-          rightImage="/figures/ignatius-ours.png"
-          leftPoster="/figures/ignatius-fsgs.png"
-          rightPoster="/figures/ignatius-ours.png"
+          leftImage={assetPath("/figures/ignatius-fsgs.png")}
+          rightImage={assetPath("/figures/ignatius-ours.png")}
+          leftPoster={assetPath("/figures/ignatius-fsgs.png")}
+          rightPoster={assetPath("/figures/ignatius-ours.png")}
           eager
         />
         <p className="hero-caption">
@@ -255,7 +258,7 @@ export default function Home() {
           </div>
 
           <PaperFigure
-            src="/figures/method-overview.png"
+            src={assetPath("/figures/method-overview.png")}
             alt="Pipeline from sparse input views and MASt3R priors through angular support, gated geometry optimization, guided topology adaptation, and fixed-topology refinement"
             width={1545}
             height={591}
@@ -352,7 +355,7 @@ export default function Home() {
           </div>
 
           <PaperFigure
-            src="/figures/unified-off-trajectory.jpg"
+            src={assetPath("/figures/unified-off-trajectory.jpg")}
             alt="Unified off-trajectory comparison across Mip-NeRF 360 and DL3DV-10K"
             width={1570}
             height={691}
@@ -370,7 +373,7 @@ export default function Home() {
 
         <Section id="rgb-depth" eyebrow="Geometry" title="RGB and depth comparison">
           <PaperFigure
-            src="/figures/rgb-depth.jpg"
+            src={assetPath("/figures/rgb-depth.jpg")}
             alt="Novel-view RGB renderings and accumulated depth maps comparing FSGS, SparseGS, NexusGS, and Ours"
             width={767}
             height={436}
@@ -396,7 +399,7 @@ export default function Home() {
         >
           <div className="viewpoint-layout">
             <PaperFigure
-              src="/figures/viewpoint-deviation.jpg"
+              src={assetPath("/figures/viewpoint-deviation.jpg")}
               alt="PSNR plotted against viewpoint deviation angle from 0 to 45 degrees for seven methods"
               width={767}
               height={415}
@@ -428,7 +431,7 @@ export default function Home() {
 
         <Section id="ablation" eyebrow="Analysis" title="Ablation results">
           <PaperFigure
-            src="/figures/ablation.jpg"
+            src={assetPath("/figures/ablation.jpg")}
             alt="RGB and depth ablation comparing the baseline, support-gated optimization, and the full method"
             width={767}
             height={324}
