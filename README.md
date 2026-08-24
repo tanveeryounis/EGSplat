@@ -18,5 +18,5 @@ Run `npm test` for a production build and rendered HTML smoke test.
 - The comparison interaction and synchronization behavior are adapted from the
   MIT-licensed package in `resources/video-compare-main.zip`; its source and
   license are retained in `vendor/video-compare/`.
-- Paper-specific result videos were not supplied. The page uses exact Figure 9
-  panels as comparison fallbacks until paired videos are available.
+- Paper-specific RGB and depth result videos are stored in `public/videos/` and
+  used by the synchronized comparison panels.

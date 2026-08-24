@@ -1,7 +1,6 @@
 import type { Metadata } from "next";
 import {
   CitationBlock,
-  MediaComparison,
   SceneComparison,
   type ComparisonScene,
 } from "./components/ProjectInteractions";
@@ -17,22 +16,70 @@ export const metadata: Metadata = {
 
 const scenes: ComparisonScene[] = [
   {
-    id: "ignatius",
-    name: "Ignatius",
-    leftImage: assetPath("/figures/ignatius-fsgs.png"),
-    rightImage: assetPath("/figures/ignatius-ours.png"),
+    id: "bench-8",
+    name: "Scene 01",
+    oursVideo: assetPath("/videos/rgb/bench_8-ours.mp4"),
+    methods: [
+      { id: "fsgs", name: "FSGS", video: assetPath("/videos/rgb/bench_8-fsgs.mp4") },
+      { id: "3dgs", name: "3DGS", video: assetPath("/videos/rgb/bench_8-3dgs.mp4") },
+      { id: "nexus", name: "NexusGS", video: assetPath("/videos/rgb/bench_8-nexus.mp4") },
+      { id: "sparsegs", name: "SparseGS", video: assetPath("/videos/rgb/bench_8-sparsegs.mp4") },
+    ],
   },
   {
-    id: "horse",
-    name: "Horse",
-    leftImage: assetPath("/figures/horse-fsgs.png"),
-    rightImage: assetPath("/figures/horse-ours.png"),
+    id: "water-8",
+    name: "Scene 02",
+    oursVideo: assetPath("/videos/rgb/water_8-ours.mp4"),
+    methods: [
+      { id: "fsgs", name: "FSGS", video: assetPath("/videos/rgb/water_8-fsgs.mp4") },
+      { id: "nexus", name: "NexusGS", video: assetPath("/videos/rgb/water_8-nexus.mp4") },
+      { id: "sparsegs", name: "SparseGS", video: assetPath("/videos/rgb/water_8-sparsegs.mp4") },
+    ],
   },
   {
-    id: "barn",
-    name: "Barn",
-    leftImage: assetPath("/figures/barn-fsgs.png"),
-    rightImage: assetPath("/figures/barn-ours.png"),
+    id: "bench3-12",
+    name: "Scene 03",
+    oursVideo: assetPath("/videos/rgb/bench3_12-ours.mp4"),
+    methods: [
+      { id: "fsgs", name: "FSGS", video: assetPath("/videos/rgb/bench3_12-fsgs.mp4") },
+      { id: "corgs", name: "COR-GS", video: assetPath("/videos/rgb/bench3_12-corgs.mp4") },
+      { id: "nexus", name: "NexusGS", video: assetPath("/videos/rgb/bench3_12-nexus.mp4") },
+      { id: "sparsegs", name: "SparseGS", video: assetPath("/videos/rgb/bench3_12-sparsegs.mp4") },
+    ],
+  },
+  {
+    id: "mall-12",
+    name: "Scene 04",
+    oursVideo: assetPath("/videos/rgb/mall_12-ours.mp4"),
+    methods: [
+      { id: "fsgs", name: "FSGS", video: assetPath("/videos/rgb/mall_12-fsgs.mp4") },
+      { id: "3dgs", name: "3DGS", video: assetPath("/videos/rgb/mall_12-3dgs.mp4") },
+      { id: "corgs", name: "COR-GS", video: assetPath("/videos/rgb/mall_12-corgs.mp4") },
+      { id: "nexus", name: "NexusGS", video: assetPath("/videos/rgb/mall_12-nexus.mp4") },
+      { id: "sparsegs", name: "SparseGS", video: assetPath("/videos/rgb/mall_12-sparsegs.mp4") },
+    ],
+  },
+];
+
+const depthScenes: ComparisonScene[] = [
+  {
+    id: "depth-bench-8",
+    name: "Scene 01",
+    oursVideo: assetPath("/videos/depth/bench_8-ours.mp4"),
+    methods: [
+      { id: "fsgs", name: "FSGS", video: assetPath("/videos/depth/bench_8-fsgs.mp4") },
+      { id: "3dgs", name: "3DGS", video: assetPath("/videos/depth/bench_8-3dgs.mp4") },
+      { id: "sparsegs", name: "SparseGS", video: assetPath("/videos/depth/bench_8-sparsegs.mp4") },
+    ],
+  },
+  {
+    id: "depth-water-8",
+    name: "Scene 02",
+    oursVideo: assetPath("/videos/depth/water_8-ours.mp4"),
+    methods: [
+      { id: "fsgs", name: "FSGS", video: assetPath("/videos/depth/water_8-fsgs.mp4") },
+      { id: "sparsegs", name: "SparseGS", video: assetPath("/videos/depth/water_8-sparsegs.mp4") },
+    ],
   },
 ];
 
@@ -104,9 +151,12 @@ function ResourceLinks() {
         <span className="resource-kicker">PDF</span>
         Paper
       </span>
-      <span aria-disabled="true" title="No code URL is stated in the paper">
+      <span aria-disabled="true" title="Code will be released soon">
         <span className="resource-kicker">URL</span>
-        Code
+        <span className="resource-label">
+          <span>Code</span>
+          <small>Coming Soon</small>
+        </span>
       </span>
       <span
         aria-disabled="true"
@@ -115,48 +165,7 @@ function ResourceLinks() {
         <span className="resource-kicker">PDF</span>
         Supplementary
       </span>
-      <a href="#top">
-        <span className="resource-kicker">WEB</span>
-        Project
-      </a>
     </nav>
-  );
-}
-
-function MetricCard({
-  dataset,
-  views,
-  psnr,
-  ssim,
-  lpips,
-}: {
-  dataset: string;
-  views: string;
-  psnr: string;
-  ssim: string;
-  lpips: string;
-}) {
-  return (
-    <article className="metric-card">
-      <div>
-        <h3>{dataset}</h3>
-        <p>{views}</p>
-      </div>
-      <dl>
-        <div>
-          <dt>PSNR</dt>
-          <dd>{psnr}</dd>
-        </div>
-        <div>
-          <dt>SSIM</dt>
-          <dd>{ssim}</dd>
-        </div>
-        <div>
-          <dt>LPIPS</dt>
-          <dd>{lpips}</dd>
-        </div>
-      </dl>
-    </article>
   );
 }
 
@@ -164,7 +173,6 @@ export default function Home() {
   return (
     <main id="top">
       <header className="paper-header content-column">
-        <p className="paper-label">Academic project page</p>
         <h1>Evidence-Gated Stabilization for Sparse-View 3D Gaussian Splatting</h1>
 
         <div className="authors" aria-label="Authors">
@@ -191,20 +199,16 @@ export default function Home() {
         <ResourceLinks />
       </header>
 
-      <section className="hero-media wide-column" aria-label="Hero comparison">
-        <MediaComparison
-          leftLabel="FSGS"
-          rightLabel="Ours"
-          leftImage={assetPath("/figures/ignatius-fsgs.png")}
-          rightImage={assetPath("/figures/ignatius-ours.png")}
-          leftPoster={assetPath("/figures/ignatius-fsgs.png")}
-          rightPoster={assetPath("/figures/ignatius-ours.png")}
-          eager
-        />
-        <p className="hero-caption">
-          Tanks and Temples, Ignatius, 4 training views. Drag to compare the
-          paper-native FSGS and Ours panels from Figure 9.
+      <section className="hero-media wide-column" aria-label="Qualitative comparisons">
+        <div className="section-heading">
+          <p className="eyebrow">Results</p>
+          <h2>Qualitative Comparisons</h2>
+        </div>
+        <p className="section-intro">
+          Select a scene and baseline method, then drag the divider to compare
+          synchronized RGB renderings against Ours.
         </p>
+        <SceneComparison scenes={scenes} />
       </section>
 
       <div className="content-column">
@@ -233,305 +237,101 @@ export default function Home() {
           </p>
         </Section>
 
-        <Section id="method" eyebrow="Approach" title="Method overview">
-          <div className="prose-stack">
-            <p>
-              Sparse-view 3DGS is unstable because the photometric gradients are
-              not equally reliable for all Gaussian primitives. In regions with
-              sufficient multiview parallax, photometric updates can provide
-              useful geometric guidance. However, in weakly observed or
-              low-parallax regions, the same updates may move, flatten, densify,
-              or preserve primitives in ways that reduce training-view error but
-              yield unstable geometry under novel viewpoints. The standard 3DGS
-              applies the same geometry update and topology growth rules in both
-              cases.
-            </p>
-            <p>
-              We propose Evidence-Gated Stabilization, a training-time framework
-              that uses primitive-level multiview support as an explicit control
-              signal. In our evaluated pipeline, MASt3R provides the camera
-              parameters and a coarse per-view geometric scaffold. Following
-              global alignment, this scaffold is used to initialize the Gaussian
-              set G<sub>0</sub>. We use the resulting geometry to estimate the
-              support of each primitive and regulate its motion, growth, and
-              persistence during optimization. Our experiments establish the
-              method only under this MASt3R-derived initialization;
-              compatibility with other scaffold providers is not evaluated.
-            </p>
-          </div>
-
+        <Section id="method" title="Method Overview">
           <PaperFigure
-            src={assetPath("/figures/method-overview.png")}
+            src={assetPath("/figures/pipeline_v2.png")}
             alt="Pipeline from sparse input views and MASt3R priors through angular support, gated geometry optimization, guided topology adaptation, and fixed-topology refinement"
-            width={1545}
-            height={591}
+            width={5040}
+            height={1944}
             contain
             caption={
               <>
-                <strong>Figure 2.</strong> Starting from a standard sparse-view
-                initialization, coarse scaffold depths and input cameras produce
-                a primitive-level Angular Support Score s<sub>k</sub>. The score
-                controls geometry update gating, support-aware topology
-                adaptation, and fixed-topology opacity refinement.
+                <strong>Overview of the proposed pipeline.</strong> We first
+                constructed a dense geometric scaffold from sparse input views
+                using MuSt3R priors and performed global alignment to resolve
+                scale ambiguity. Next, we seed an initial Gaussian set <i>G</i>
+                <sub>0</sub> and compute a continuous Angular Support Score <i>s</i>
+                <sub>k</sub> from the multiview parallax. This score drives the
+                Support-Gated Optimization loop, where a soft gate <i>η</i>(<i>s</i>
+                <sub>k</sub>) modulates the gradient updates and restricts
+                topology adaptation (splitting and pruning) to evidence-rich
+                regions to suppress unreliable geometry. Finally,
+                Fixed-Topology Refinement anneals opacity and appearance,
+                yielding a stabilized Gaussian field <i>G</i><sup>*</sup> that
+                remains robust under viewpoint deviation.
               </>
             }
           />
 
-          <div className="method-steps" aria-label="Method stages">
-            <article>
-              <span>01</span>
-              <h3>Angular support</h3>
-              <p>
-                Compute s<sub>k</sub> from scaffold-consistent visibility,
-                pairwise angular parallax, and baseline-to-depth normalization.
-              </p>
-            </article>
-            <article>
-              <span>02</span>
-              <h3>Geometry gating</h3>
-              <p>
-                Gate position, scale, and rotation updates while leaving
-                appearance parameters adaptive.
-              </p>
-            </article>
-            <article>
-              <span>03</span>
-              <h3>Guided topology</h3>
-              <p>
-                Restrict splitting and cloning in weakly supported regions and
-                prune low-opacity primitives with persistently low support.
-              </p>
-            </article>
-            <article>
-              <span>04</span>
-              <h3>Fixed-topology refinement</h3>
-              <p>
-                Attenuate the opacity of primitives that remain weakly supported
-                over time.
-              </p>
-            </article>
-          </div>
-          <p className="source-note">
-            The support score is a soft reliability estimate and not a proof of
-            physical correctness.
-          </p>
         </Section>
 
         <Section
           id="qualitative"
           eyebrow="Results"
-          title="Interactive qualitative comparisons"
+          title="Depth Comparison"
         >
           <p className="section-intro">
-            Tanks and Temples with 4 training views. Select an off-trajectory
-            scene and drag the divider to compare the paper's FSGS and Ours
-            panels.
+            Select a scene and baseline method, then drag the divider to compare
+            synchronized depth renderings against Ours.
           </p>
-          <SceneComparison scenes={scenes} />
-
-          <div className="metrics-heading">
-            <p className="eyebrow">Table I</p>
-            <h3>Quantitative results for Ours</h3>
-          </div>
-          <div className="metric-grid">
-            <MetricCard
-              dataset="Tanks and Temples"
-              views="4 views"
-              psnr="19.85"
-              ssim="0.865"
-              lpips="0.155"
-            />
-            <MetricCard
-              dataset="DL3DV-10K"
-              views="8 views"
-              psnr="22.44"
-              ssim="0.721"
-              lpips="0.263"
-            />
-            <MetricCard
-              dataset="Mip-NeRF 360"
-              views="12 views"
-              psnr="20.17"
-              ssim="0.739"
-              lpips="0.273"
-            />
-          </div>
-
-          <PaperFigure
-            src={assetPath("/figures/unified-off-trajectory.jpg")}
-            alt="Unified off-trajectory comparison across Mip-NeRF 360 and DL3DV-10K"
-            width={1570}
-            height={691}
-            caption={
-              <>
-                <strong>Figure 8.</strong> Unified qualitative comparison on
-                off-trajectory novel views across Mip-NeRF 360 (top two rows, 12
-                training views) and DL3DV-10K (bottom two rows, 8 training
-                views). Perceptual quality is quantified in Table II of the
-                paper.
-              </>
-            }
-          />
+          <SceneComparison scenes={depthScenes} />
         </Section>
 
-        <Section id="rgb-depth" eyebrow="Geometry" title="RGB and depth comparison">
+        <Section
+          id="off-trajectory"
+          eyebrow="Results"
+          title="Off-Trajectory Comparison"
+        >
           <PaperFigure
-            src={assetPath("/figures/rgb-depth.jpg")}
-            alt="Novel-view RGB renderings and accumulated depth maps comparing FSGS, SparseGS, NexusGS, and Ours"
-            width={767}
-            height={436}
+            src={assetPath("/figures/fig5.png")}
+            alt="Qualitative comparison on representative off-trajectory novel views"
+            width={3072}
+            height={1353}
             caption={
               <>
-                <strong>Figure 5.</strong> Novel-view RGB renderings and
-                accumulated depth maps on DL3DV-10K under sparse inputs. FSGS,
-                SparseGS, and NexusGS produce plausible RGB appearances, but
-                their rendered depth maps show floating artifacts and blurred
-                depth boundaries that intensify under viewpoint deviation. Our
-                method yields cleaner rendered depth with sharper discontinuities
-                and fewer visible floaters in this example, suggesting improved
-                stability beyond appearance fitting.
+                Qualitative comparison on off-trajectory novel views across
+                Mip-NeRF 360 (top two rows, 12 training views) and DL3DV-10K
+                (bottom two rows, 8 training views). Baselines exhibit distinct
+                failure modes under viewpoint deviation. FSGS shows
+                billboard-like stretching and foreground floaters, while CoR-GS
+                exhibits background collapse and view-dependent color bleeding.
+                SparseGS produces planar surface stretching as the viewpoint
+                moves away from the training trajectory, and NexusGS retains
+                residual blur on fine foreground structures. Our method
+                produces fewer visible artifacts and more coherent structures
+                in the examples shown.
               </>
             }
           />
         </Section>
 
         <Section
-          id="viewpoint"
-          eyebrow="Stability analysis"
-          title="Viewpoint-deviation results"
+          id="near-trajectory"
+          eyebrow="Results"
+          title="Near-Trajectory Comparison"
         >
-          <div className="viewpoint-layout">
-            <PaperFigure
-              src={assetPath("/figures/viewpoint-deviation.jpg")}
-              alt="PSNR plotted against viewpoint deviation angle from 0 to 45 degrees for seven methods"
-              width={767}
-              height={415}
-              caption={
-                <>
-                  <strong>Figure 7.</strong> PSNR as a function of angular
-                  deviation from the nearest training view. The dashed line
-                  denotes the 15 degree near/off-trajectory threshold. Our method
-                  degrades more gradually as viewpoint deviation increases.
-                </>
-              }
-            />
-            <aside className="deviation-callouts" aria-label="Annotated margins">
-              <div>
-                <span>15 degrees</span>
-                <strong>+0.65 dB</strong>
-              </div>
-              <div>
-                <span>45 degrees</span>
-                <strong>+1.10 dB</strong>
-              </div>
-              <p>
-                Exact visual margins annotated in Figure 7. Off-trajectory poses
-                deviate more than 15 degrees from the nearest training camera.
-              </p>
-            </aside>
-          </div>
-        </Section>
-
-        <Section id="ablation" eyebrow="Analysis" title="Ablation results">
           <PaperFigure
-            src={assetPath("/figures/ablation.jpg")}
-            alt="RGB and depth ablation comparing the baseline, support-gated optimization, and the full method"
-            width={767}
-            height={324}
+            src={assetPath("/figures/fig6.png")}
+            alt="Qualitative comparison of baseline methods and Ours on representative novel views"
+            width={2727}
+            height={842}
             caption={
               <>
-                <strong>Figure 6.</strong> The baseline suffers from
-                billboard-like artifacts and geometric distortions.
-                Support-gated optimization sharpens RGB rendering but retains
-                high-frequency floaters in the depth map. Evidence-Guided
-                Topology restricts density to verified regions, suppresses
-                floaters, and stabilizes geometry.
+                Qualitative comparison on Tanks and Temples with 4 training
+                views across the Ignatius, Horse, and Barn scenes. FSGS exhibits
+                foreground floaters and blurred surface boundaries, while
+                CoR-GS shows view-dependent color bleeding in reflective and
+                thin structures. SparseGS produces planar stretching under
+                substantial viewpoint deviation, and NexusGS retains background
+                blur despite improved structural coherence. Our method produces
+                sharper structures and fewer visible artifacts in the examples
+                shown.
               </>
             }
           />
-
-          <div className="table-block">
-            <div className="table-title">
-              <div>
-                <p className="eyebrow">Table III</p>
-                <h3>Component ablation on Mip-NeRF 360</h3>
-              </div>
-              <span>12 views</span>
-            </div>
-            <div className="table-scroll" tabIndex={0}>
-              <table>
-                <thead>
-                  <tr>
-                    <th scope="col">Configuration</th>
-                    <th scope="col">PSNR</th>
-                    <th scope="col">SSIM</th>
-                    <th scope="col">LPIPS</th>
-                  </tr>
-                </thead>
-                <tbody>
-                  <tr>
-                    <th scope="row">Baseline (MASt3R Scaffold + Vanilla 3DGS)</th>
-                    <td>18.11</td>
-                    <td>0.514</td>
-                    <td>0.497</td>
-                  </tr>
-                  <tr>
-                    <th scope="row">+ Support-Gated Opt.</th>
-                    <td>19.33</td>
-                    <td>0.639</td>
-                    <td>0.360</td>
-                  </tr>
-                  <tr className="highlight-row">
-                    <th scope="row">+ Evidence-Guided Topo. (Ours)</th>
-                    <td>20.17</td>
-                    <td>0.739</td>
-                    <td>0.273</td>
-                  </tr>
-                  <tr>
-                    <th scope="row">sₖ without resolution-confidence (sin θ only)</th>
-                    <td>19.66</td>
-                    <td>0.706</td>
-                    <td>0.307</td>
-                  </tr>
-                  <tr>
-                    <th scope="row">Strict isotropy (κ = 1) instead of κ = 4</th>
-                    <td>19.52</td>
-                    <td>0.698</td>
-                    <td>0.318</td>
-                  </tr>
-                  <tr>
-                    <th scope="row">Global gating (geometry + appearance)</th>
-                    <td>19.74</td>
-                    <td>0.713</td>
-                    <td>0.298</td>
-                  </tr>
-                </tbody>
-              </table>
-            </div>
-          </div>
-
-          <div className="ablation-summary">
-            <article>
-              <span>Full method vs. baseline</span>
-              <strong>+2.06 dB</strong>
-            </article>
-            <article>
-              <span>Support gating LPIPS</span>
-              <strong>0.497 → 0.360</strong>
-            </article>
-            <article>
-              <span>Guided topology LPIPS</span>
-              <strong>0.360 → 0.273</strong>
-            </article>
-          </div>
         </Section>
 
-        <Section id="citation" title="Citation / BibTeX">
-          <p className="citation-note">
-            The supplied manuscript does not state a venue, publication year,
-            DOI, or paper-native BibTeX entry. This minimal citation includes
-            only metadata stated in the PDF.
-          </p>
+        <Section id="citation" title="Citation">
           <CitationBlock value={bibtex} />
         </Section>
       </div>

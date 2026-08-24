@@ -33,7 +33,7 @@ const localBindingConfig = {
     : [],
 };
 
-export default defineConfig(async () => {
+export default defineConfig(async ({ command }) => {
   // Keep Wrangler and Miniflare state project-local. These are non-secret tool
   // settings; application environment belongs in ignored `.env*` files.
   process.env.WRANGLER_WRITE_LOGS ??= "false";
@@ -41,7 +41,12 @@ export default defineConfig(async () => {
   process.env.MINIFLARE_REGISTRY_PATH ??= ".wrangler/registry";
 
   // Wrangler snapshots its log path while the Cloudflare plugin is imported.
-  const { cloudflare } = await import("@cloudflare/vite-plugin");
+  // Import it only for builds so local editing does not initialize the worker
+  // emulator.
+  const cloudflarePlugin =
+    command === "build"
+      ? (await import("@cloudflare/vite-plugin")).cloudflare
+      : null;
 
   return {
     server: isCodexSeatbeltSandbox
@@ -50,10 +55,17 @@ export default defineConfig(async () => {
     plugins: [
       vinext(),
       sites(),
-      cloudflare({
-        viteEnvironment: { name: "rsc", childEnvironments: ["ssr"] },
-        config: localBindingConfig,
-      }),
+      // The project page has no local D1/R2 bindings. Avoid starting the
+      // Cloudflare worker emulator during HMR; it can block the Vite server
+      // before it opens its local URL. Keep it enabled for production builds.
+      ...(cloudflarePlugin
+        ? [
+            cloudflarePlugin({
+              viteEnvironment: { name: "rsc", childEnvironments: ["ssr"] },
+              config: localBindingConfig,
+            }),
+          ]
+        : []),
     ],
   };
 });
