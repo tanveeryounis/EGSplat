@@ -16,7 +16,7 @@ Run `npm test` for a production build and rendered HTML smoke test.
 
 - Paper content and figures are extracted from `resources/paper_v2.pdf`.
 - The comparison interaction and synchronization behavior are adapted from the
-  MIT-licensed package in `resources/video-compare-main.zip`; its source and
-  license are retained in `vendor/video-compare/`.
+  MIT-licensed `video-compare` package; its source and license are retained in
+  `vendor/video-compare/`.
 - Paper-specific RGB and depth result videos are stored in `public/videos/` and
   used by the synchronized comparison panels.
