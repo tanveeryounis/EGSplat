@@ -5,10 +5,10 @@ import { useCallback, useEffect, useId, useRef, useState } from "react";
 // Slider behavior and playback synchronization are adapted from video-compare
 // v0.0.7 (MIT). The supplied source and license are retained in /vendor/video-compare.
 
-const COMPARISON_PLAYBACK_RATE = 0.7;
+const COMPARISON_PLAYBACK_RATE = 1.0;
 const MIN_PLAYABLE_READY_STATE = 3;
-const SYNC_INTERVAL_MS = 250;
-const MAX_DRIFT_SECONDS = 0.06;
+const SYNC_INTERVAL_MS = 500;
+const MAX_DRIFT_SECONDS = 0.2;
 
 type MediaComparisonProps = {
   leftLabel: string;
@@ -175,11 +175,6 @@ export function MediaComparison({
     const sync = () => {
       if (userPausedRef.current || document.hidden || !isVisible) return;
 
-      if (!pairReady()) {
-        handleBuffering();
-        return;
-      }
-
       if (left.paused !== right.paused) {
         bufferingPause = true;
         setIsBuffering(true);
@@ -189,6 +184,10 @@ export function MediaComparison({
       }
 
       if (!left.paused && !right.paused) {
+        if (left.readyState < 2 || right.readyState < 2) {
+          handleBuffering();
+          return;
+        }
         alignPair();
       }
     };
@@ -333,7 +332,7 @@ export function MediaComparison({
           className="comparison-playback-button"
           onPointerDown={(event) => event.stopPropagation()}
           onClick={togglePlayback}
-          aria-label={`$${
+          aria-label={`${
             isBuffering ? "Buffering" : isPlaying ? "Pause" : "Play"
           } comparison videos`}
         >
