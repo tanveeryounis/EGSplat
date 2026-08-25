@@ -70,6 +70,7 @@ video {
 }
 
 .paper-header {
+  max-width: 1280px;
   padding-top: clamp(36px, 6vw, 70px);
   text-align: center;
 }
@@ -93,7 +94,7 @@ p {
 }
 
 h1 {
-  max-width: 1020px;
+  max-width: 1280px;
   margin: 0 auto;
   color: #102b4e;
   font-family: Arial, Helvetica, sans-serif;
