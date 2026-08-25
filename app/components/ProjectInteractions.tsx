@@ -6,6 +6,9 @@ import { useCallback, useEffect, useId, useRef, useState } from "react";
 // v0.0.7 (MIT). The supplied source and license are retained in /vendor/video-compare.
 
 const COMPARISON_PLAYBACK_RATE = 0.7;
+const MIN_PLAYABLE_READY_STATE = 3;
+const SYNC_INTERVAL_MS = 250;
+const MAX_DRIFT_SECONDS = 0.06;
 
 type MediaComparisonProps = {
   leftLabel: string;
@@ -30,15 +33,17 @@ export function MediaComparison({
   rightPoster,
   eager = false,
 }: MediaComparisonProps) {
+  const hasVideoPair = Boolean(leftVideo && rightVideo);
   const [position, setPosition] = useState(50);
   const [nearViewport, setNearViewport] = useState(eager);
+  const [isVisible, setIsVisible] = useState(eager);
   const [isPlaying, setIsPlaying] = useState(true);
+  const [isBuffering, setIsBuffering] = useState(hasVideoPair);
   const shellRef = useRef<HTMLDivElement>(null);
   const leftVideoRef = useRef<HTMLVideoElement>(null);
   const rightVideoRef = useRef<HTMLVideoElement>(null);
   const userPausedRef = useRef(false);
   const rangeId = useId();
-  const hasVideoPair = Boolean(leftVideo && rightVideo);
 
   useEffect(() => {
     if (eager || nearViewport || !shellRef.current) return;
@@ -50,7 +55,7 @@ export function MediaComparison({
           observer.disconnect();
         }
       },
-      { rootMargin: "320px 0px" },
+      { rootMargin: "240px 0px" },
     );
 
     observer.observe(shellRef.current);
@@ -58,58 +63,177 @@ export function MediaComparison({
   }, [eager, nearViewport]);
 
   useEffect(() => {
+    if (!shellRef.current) return;
+
+    const observer = new IntersectionObserver(
+      ([entry]) => {
+        setIsVisible(entry.isIntersecting && entry.intersectionRatio > 0.05);
+      },
+      { threshold: [0, 0.05, 0.2] },
+    );
+
+    observer.observe(shellRef.current);
+    return () => observer.disconnect();
+  }, []);
+
+  useEffect(() => {
     if (!hasVideoPair || !nearViewport) return;
     const left = leftVideoRef.current;
     const right = rightVideoRef.current;
     if (!left || !right) return;
 
-    left.defaultPlaybackRate = COMPARISON_PLAYBACK_RATE;
-    right.defaultPlaybackRate = COMPARISON_PLAYBACK_RATE;
-    left.playbackRate = COMPARISON_PLAYBACK_RATE;
-    right.playbackRate = COMPARISON_PLAYBACK_RATE;
+    let cancelled = false;
+    let bufferingPause = false;
 
-    const sync = () => {
+    const applyPlaybackRate = () => {
+      left.defaultPlaybackRate = COMPARISON_PLAYBACK_RATE;
+      right.defaultPlaybackRate = COMPARISON_PLAYBACK_RATE;
+      left.playbackRate = COMPARISON_PLAYBACK_RATE;
+      right.playbackRate = COMPARISON_PLAYBACK_RATE;
+    };
+
+    const pairReady = () =>
+      left.readyState >= MIN_PLAYABLE_READY_STATE &&
+      right.readyState >= MIN_PLAYABLE_READY_STATE;
+
+    const alignPair = (force = false) => {
       if (left.readyState < 2 || right.readyState < 2) return;
-      if (Math.abs(left.currentTime - right.currentTime) > 0.08) {
+      const drift = Math.abs(left.currentTime - right.currentTime);
+      if (force || drift > MAX_DRIFT_SECONDS) {
         right.currentTime = left.currentTime;
       }
+    };
+
+    const pauseBoth = () => {
+      left.pause();
+      right.pause();
+    };
+
+    const resumeTogether = async () => {
+      if (
+        cancelled ||
+        userPausedRef.current ||
+        document.hidden ||
+        !isVisible
+      ) {
+        return;
+      }
+
+      if (!pairReady()) {
+        setIsBuffering(true);
+        return;
+      }
+
+      applyPlaybackRate();
+      alignPair(true);
+
+      const results = await Promise.allSettled([left.play(), right.play()]);
+      if (cancelled) return;
+
+      const bothPlaying =
+        results.every((result) => result.status === "fulfilled") &&
+        !left.paused &&
+        !right.paused;
+
+      setIsPlaying(bothPlaying);
+      setIsBuffering(!bothPlaying);
+    };
+
+    const handleBuffering = () => {
+      if (userPausedRef.current || document.hidden || !isVisible) return;
+      bufferingPause = true;
+      setIsBuffering(true);
+      pauseBoth();
+    };
+
+    const handleReady = () => {
+      if (userPausedRef.current || document.hidden || !isVisible) return;
+      if (pairReady() && (bufferingPause || left.paused || right.paused)) {
+        bufferingPause = false;
+        void resumeTogether();
+      }
+    };
+
+    const handlePlaying = () => {
+      if (!left.paused && !right.paused) {
+        bufferingPause = false;
+        setIsBuffering(false);
+        setIsPlaying(true);
+      }
+    };
+
+    const handleVisibility = () => {
+      if (document.hidden || !isVisible) {
+        pauseBoth();
+        return;
+      }
+      if (!userPausedRef.current) {
+        void resumeTogether();
+      }
+    };
+
+    const sync = () => {
+      if (userPausedRef.current || document.hidden || !isVisible) return;
+
+      if (!pairReady()) {
+        handleBuffering();
+        return;
+      }
+
       if (left.paused !== right.paused) {
-        if (left.paused) right.pause();
-        else void right.play().catch(() => undefined);
+        bufferingPause = true;
+        setIsBuffering(true);
+        pauseBoth();
+        void resumeTogether();
+        return;
+      }
+
+      if (!left.paused && !right.paused) {
+        alignPair();
       }
     };
 
-    const handlePlay = () => {
-      setIsPlaying(true);
-      sync();
-    };
+    applyPlaybackRate();
 
-    const handlePause = () => {
-      setIsPlaying(false);
-      sync();
-    };
+    const bufferingEvents = ["waiting", "stalled"] as const;
+    const readyEvents = ["loadeddata", "canplay", "canplaythrough"] as const;
 
-    const pauseWhenHidden = () => {
-      if (document.hidden) {
-        left.pause();
-        right.pause();
-      } else if (!userPausedRef.current) {
-        void Promise.allSettled([left.play(), right.play()]);
-      }
-    };
+    bufferingEvents.forEach((eventName) => {
+      left.addEventListener(eventName, handleBuffering);
+      right.addEventListener(eventName, handleBuffering);
+    });
+    readyEvents.forEach((eventName) => {
+      left.addEventListener(eventName, handleReady);
+      right.addEventListener(eventName, handleReady);
+    });
+    left.addEventListener("playing", handlePlaying);
+    right.addEventListener("playing", handlePlaying);
+    document.addEventListener("visibilitychange", handleVisibility);
 
-    const interval = window.setInterval(sync, 1000);
-    left.addEventListener("play", handlePlay);
-    left.addEventListener("pause", handlePause);
-    document.addEventListener("visibilitychange", pauseWhenHidden);
+    const interval = window.setInterval(sync, SYNC_INTERVAL_MS);
+
+    if (isVisible) {
+      void resumeTogether();
+    } else {
+      pauseBoth();
+    }
 
     return () => {
+      cancelled = true;
       window.clearInterval(interval);
-      left.removeEventListener("play", handlePlay);
-      left.removeEventListener("pause", handlePause);
-      document.removeEventListener("visibilitychange", pauseWhenHidden);
+      bufferingEvents.forEach((eventName) => {
+        left.removeEventListener(eventName, handleBuffering);
+        right.removeEventListener(eventName, handleBuffering);
+      });
+      readyEvents.forEach((eventName) => {
+        left.removeEventListener(eventName, handleReady);
+        right.removeEventListener(eventName, handleReady);
+      });
+      left.removeEventListener("playing", handlePlaying);
+      right.removeEventListener("playing", handlePlaying);
+      document.removeEventListener("visibilitychange", handleVisibility);
     };
-  }, [hasVideoPair, nearViewport, leftVideo, rightVideo]);
+  }, [hasVideoPair, nearViewport, isVisible, leftVideo, rightVideo]);
 
   const togglePlayback = useCallback(() => {
     const left = leftVideoRef.current;
@@ -118,17 +242,28 @@ export function MediaComparison({
 
     if (left.paused || right.paused) {
       userPausedRef.current = false;
-      right.currentTime = left.currentTime;
-      left.playbackRate = COMPARISON_PLAYBACK_RATE;
-      right.playbackRate = COMPARISON_PLAYBACK_RATE;
-      void Promise.allSettled([left.play(), right.play()]).then(() => {
-        setIsPlaying(!left.paused && !right.paused);
-      });
+      setIsPlaying(true);
+      if (
+        left.readyState >= MIN_PLAYABLE_READY_STATE &&
+        right.readyState >= MIN_PLAYABLE_READY_STATE
+      ) {
+        right.currentTime = left.currentTime;
+        left.playbackRate = COMPARISON_PLAYBACK_RATE;
+        right.playbackRate = COMPARISON_PLAYBACK_RATE;
+        void Promise.allSettled([left.play(), right.play()]).then(() => {
+          const bothPlaying = !left.paused && !right.paused;
+          setIsPlaying(bothPlaying);
+          setIsBuffering(!bothPlaying);
+        });
+      } else {
+        setIsBuffering(true);
+      }
     } else {
       userPausedRef.current = true;
       left.pause();
       right.pause();
       setIsPlaying(false);
+      setIsBuffering(false);
     }
   }, []);
 
@@ -152,8 +287,7 @@ export function MediaComparison({
           ref={videoRef}
           src={nearViewport ? video : undefined}
           poster={poster}
-          preload="none"
-          autoPlay
+          preload="auto"
           muted
           loop
           playsInline
@@ -199,7 +333,9 @@ export function MediaComparison({
           className="comparison-playback-button"
           onPointerDown={(event) => event.stopPropagation()}
           onClick={togglePlayback}
-          aria-label={`${isPlaying ? "Pause" : "Play"} comparison videos`}
+          aria-label={`$${
+            isBuffering ? "Buffering" : isPlaying ? "Pause" : "Play"
+          } comparison videos`}
         >
           {isPlaying ? (
             <svg viewBox="0 0 24 24" aria-hidden="true">
@@ -210,7 +346,7 @@ export function MediaComparison({
               <path d="m8 5 11 7-11 7z" />
             </svg>
           )}
-          <span>{isPlaying ? "Pause" : "Play"}</span>
+          <span>{isBuffering ? "Buffering…" : isPlaying ? "Pause" : "Play"}</span>
         </button>
       ) : null}
 
