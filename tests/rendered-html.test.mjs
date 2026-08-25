@@ -28,7 +28,10 @@ test("server-renders the academic project page", async () => {
   assert.match(response.headers.get("content-type") ?? "", /^text\/html\b/i);
 
   const html = await response.text();
-  assert.match(html, /Evidence-Gated Stabilization for Sparse-View 3D Gaussian Splatting/);
+  assert.match(
+    html,
+    /EGSplat: Multiview Evidence-Guided Optimization for Sparse-View 3D Gaussian Splatting/,
+  );
   assert.match(html, /Tanveer Younis/);
   assert.match(html, /Method Overview/);
   assert.match(html, /Qualitative Comparisons/);
@@ -39,7 +42,10 @@ test("server-renders the academic project page", async () => {
   assert.match(html, /\/figures\/pipeline_v2\.png/);
   assert.match(html, /\/figures\/fig5\.png/);
   assert.match(html, /\/figures\/fig6\.png/);
-  assert.match(html, /Citation/);
+  assert.doesNotMatch(
+    html,
+    /id="citation"|class="citation-block"|<h3>BibTeX<\/h3>|@misc\{younis_egsplat/,
+  );
   assert.doesNotMatch(html, /Viewpoint-deviation results|Quantitative results for Ours|Component ablation on Mip-NeRF 360|RGB and depth comparison|Ablation results/);
   assert.doesNotMatch(html, /codex-preview|react-loading-skeleton/i);
 });

@@ -1,7 +1,7 @@
-# Evidence-Gated Stabilization project page
+# EGSplat project page
 
-Responsive academic project page for **Evidence-Gated Stabilization for
-Sparse-View 3D Gaussian Splatting**.
+Responsive academic project page for **EGSplat: Multiview Evidence-Guided
+Optimization for Sparse-View 3D Gaussian Splatting**.
 
 ## Development
 

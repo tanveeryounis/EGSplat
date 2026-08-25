@@ -21,8 +21,8 @@ jobs:
     runs-on: ubuntu-latest
     env:
       GITHUB_PAGES: "true"
-      NEXT_PUBLIC_BASE_PATH: /evidence-gated-3dgs
-      NEXT_PUBLIC_SITE_URL: https://tanveeryounis.github.io/evidence-gated-3dgs
+      NEXT_PUBLIC_BASE_PATH: /EGSplat
+      NEXT_PUBLIC_SITE_URL: https://tanveeryounis.github.io/EGSplat
     steps:
       - name: Check out repository
         uses: actions/checkout@v4

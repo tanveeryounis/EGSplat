@@ -9,9 +9,10 @@ const basePath = process.env.NEXT_PUBLIC_BASE_PATH ?? "";
 const assetPath = (path: string) => `${basePath}${path}`;
 
 export const metadata: Metadata = {
-  title: "Evidence-Gated Stabilization for Sparse-View 3D Gaussian Splatting",
+  title:
+    "EGSplat: Multiview Evidence-Guided Optimization for Sparse-View 3D Gaussian Splatting",
   description:
-    "Academic project page for Evidence-Gated Stabilization, a training-time framework for sparse-view 3D Gaussian Splatting.",
+    "Academic project page for EGSplat, a training-time framework for sparse-view 3D Gaussian Splatting.",
 };
 
 const scenes: ComparisonScene[] = [
@@ -83,10 +84,11 @@ const depthScenes: ComparisonScene[] = [
   },
 ];
 
-const bibtex = `@misc{younis_evidence_gated_stabilization,
-  title  = {Evidence-Gated Stabilization for Sparse-View 3D Gaussian Splatting},
+const bibtex = `@misc{younis_egsplat,
+  title  = {EGSplat: Multiview Evidence-Guided Optimization for Sparse-View 3D Gaussian Splatting},
   author = {Younis, Tanveer and Cheng, Zhanglin}
 }`;
+const SHOW_CITATION = false;
 
 type SectionProps = {
   id: string;
@@ -173,7 +175,10 @@ export default function Home() {
   return (
     <main id="top">
       <header className="paper-header content-column">
-        <h1>Evidence-Gated Stabilization for Sparse-View 3D Gaussian Splatting</h1>
+        <h1>
+          EGSplat: Multiview Evidence-Guided Optimization for Sparse-View 3D
+          Gaussian Splatting
+        </h1>
 
         <div className="authors" aria-label="Authors">
           <span>
@@ -214,26 +219,32 @@ export default function Home() {
       <div className="content-column">
         <Section id="abstract" title="Abstract">
           <p className="abstract-copy">
-            Sparse-view 3D Gaussian Splatting can fit input images with
-            primitives that appear plausible near the training trajectory but
+            Sparse-view 3D Gaussian Splatting can fit the input images with
+            primitives that appear plausible near the training trajectory yet
             become floaters, billboard-like structures, or drifting geometries
-            under larger viewpoint changes. We view this behavior as an
+            under larger viewpoint changes. We interpret this behavior as an
             optimization-dynamics problem: standard 3DGS applies the same
-            geometry updates and densification rules to primitives that are well
-            supported by multiple views and to those that are under-constrained
-            by a low parallax. We propose Evidence-Gated Stabilization, which
-            uses primitive-level multiview support to regulate sparse-view 3DGS
-            training. From a standard sparse-view initialization, we estimated
-            an Angular Support Score using scaffold-consistent visibility,
-            pairwise parallax, and baseline-to-depth normalization. This score
-            modulates the updates of the Gaussian position, scale, and rotation,
-            restricts splitting and cloning, and guides pruning and opacity
-            refinement, while leaving the appearance parameters adaptive. Our
-            method reduces the influence of primitives that lack sufficient
-            support. Experiments on Tanks and Temples, DL3DV-10K, and Mip-NeRF
-            360 showed improved PSNR, SSIM, and LPIPS over sparse-view 3DGS
-            baselines, and qualitative comparisons indicated fewer
-            off-trajectory floaters and billboard-like artifacts.
+            geometry updates and densification rules to primitives with strong
+            multiview support and to those that remain under-constrained because
+            of limited parallax. We propose EGSplat, which regulates sparse-view
+            3DGS training using primitive-level multiview support. Starting from
+            a scaffold-based sparse-view initialization, we estimate an Angular
+            Support Score from scaffold-consistent visibility, pairwise parallax,
+            and baseline-to-depth normalization. The resulting coefficient
+            governs an evidence-conditioned prior–data refinement process in
+            which well-supported primitives rely primarily on photometric
+            supervision, whereas weakly supported primitives receive stronger
+            scaffold-based positional stabilization. The same support signal
+            gates photometric updates of scale and rotation and restricts
+            splitting and cloning. It also guides pruning and opacity refinement,
+            whereas appearance parameters remain adaptive. In this way,
+            geometric evidence determines when sparse observations provide
+            sufficient support for data-driven geometric refinement and when the
+            scaffold-based prior should exert stronger stabilization. Experiments
+            on Tanks and Temples, DL3DV-10K, and Mip-NeRF 360 show improved PSNR,
+            SSIM, and LPIPS over sparse-view 3DGS baselines, while qualitative
+            comparisons reveal fewer off-trajectory floaters and billboard-like
+            artifacts.
           </p>
         </Section>
 
@@ -247,18 +258,24 @@ export default function Home() {
             caption={
               <>
                 <strong>Overview of the proposed pipeline.</strong> We first
-                constructed a dense geometric scaffold from sparse input views
-                using MuSt3R priors and performed global alignment to resolve
-                scale ambiguity. Next, we seed an initial Gaussian set <i>G</i>
-                <sub>0</sub> and compute a continuous Angular Support Score <i>s</i>
-                <sub>k</sub> from the multiview parallax. This score drives the
-                Support-Gated Optimization loop, where a soft gate <i>η</i>(<i>s</i>
-                <sub>k</sub>) modulates the gradient updates and restricts
-                topology adaptation (splitting and pruning) to evidence-rich
-                regions to suppress unreliable geometry. Finally,
-                Fixed-Topology Refinement anneals opacity and appearance,
-                yielding a stabilized Gaussian field <i>G</i><sup>*</sup> that
-                remains robust under viewpoint deviation.
+                obtain a geometric scaffold and camera estimates from sparse
+                input views using MASt3R priors and perform global alignment
+                before initializing the Gaussian set <i>G</i><sub>0</sub>. The
+                scaffold-initialized centers are retained as positional
+                references, and a continuous Angular Support Score <i>s</i>
+                <sub>k</sub> is computed from scaffold-consistent multiview
+                geometry. The resulting evidence coefficient <i>η</i><sub>k</sub>{" "}
+                drives evidence-conditioned prior–data refinement: well-supported
+                centers rely primarily on photometric supervision, whereas weakly
+                supported centers receive stronger scaffold-based positional
+                stabilization. The same evidence signal gates photometric updates
+                of scale and rotation and guides topology adaptation, permitting
+                split/clone operations in regions with relatively stronger support
+                while pruning low-support, low-opacity primitives. Finally,
+                Fixed-Topology Refinement attenuates the opacity of persistently
+                weakly supported primitives while appearance remains adaptive,
+                yielding a stabilized Gaussian field <i>G</i><sup>*</sup> under
+                viewpoint deviation.
               </>
             }
           />
@@ -331,13 +348,18 @@ export default function Home() {
           />
         </Section>
 
-        <Section id="citation" title="Citation">
-          <CitationBlock value={bibtex} />
-        </Section>
+        {SHOW_CITATION ? (
+          <Section id="citation" title="Citation">
+            <CitationBlock value={bibtex} />
+          </Section>
+        ) : null}
       </div>
 
       <footer className="page-footer">
-        <p>Evidence-Gated Stabilization for Sparse-View 3D Gaussian Splatting</p>
+        <p>
+          EGSplat: Multiview Evidence-Guided Optimization for Sparse-View 3D
+          Gaussian Splatting
+        </p>
       </footer>
     </main>
   );
