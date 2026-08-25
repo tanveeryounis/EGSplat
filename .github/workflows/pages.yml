@@ -1,5 +1,6 @@
 name: Deploy GitHub Pages
 
+# Trigger GitHub Pages deployment after enabling Pages
 on:
   push:
     branches:
