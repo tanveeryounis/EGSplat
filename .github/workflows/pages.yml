@@ -39,6 +39,23 @@ jobs:
       - name: Install dependencies
         run: npm ci
 
+      - name: Optimize comparison videos for web playback
+        shell: bash
+        run: |
+          if ! command -v ffmpeg >/dev/null 2>&1; then
+            sudo apt-get update
+            sudo apt-get install -y ffmpeg
+          fi
+
+          find public/videos -type f -name '*.mp4' -print0 | while IFS= read -r -d '' file; do
+            tmp="${file%.mp4}.faststart.mp4"
+            ffmpeg -hide_banner -loglevel error -y \
+              -i "$file" \
+              -map 0:v:0 -c:v copy -an -movflags +faststart \
+              "$tmp"
+            mv "$tmp" "$file"
+          done
+
       - name: Build static site
         run: npm run build:pages
 
